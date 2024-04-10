@@ -16,7 +16,8 @@ from PIL import Image
 import httpx
 from app.components.characters_csv import leer_csv
 from app.components.decodificador_html import decode_html_entities
-
+from app.components.links_icons_heroes import icons_heroes
+from app.components.links_models_heroes import models_heroes
 
 
 characters = []
@@ -108,13 +109,20 @@ async def character_list():
     agregar_horoscope()
 
     Agregar_characters_faltantes()
-    
 
+    agregar_icons(icons_heroes)
+
+    agregar_models(models_heroes)
+
+    for terminado in characters:
+        print(terminado)
+    
+    # print(icons)
     # convertir_png_a_webp(directorio_entrada, directorio_salida) # Llamar a la función para obtener y convertir las imágenes a webp
     
-    convert_images_to_base85(directory_path, 'icon') # Llamar a la función para obtener y convertir las imágenes a base85
+    # convert_images_to_base85(directory_path, 'icon') # Llamar a la función para obtener y convertir las imágenes a base85
     
-    convert_images_to_base85(directory_path_models, 'model')
+    # convert_images_to_base85(directory_path_models, 'model')
 
     return characters
     # for objeto in characters:
@@ -203,24 +211,81 @@ def Agregar_characters_faltantes():
 
 
 
+def agregar_icons(icons):
+    for heroes in characters:
+        for url in icons:
+            # dejar solo el nombre
+            nombre_archivo = url.split("/")[-1]
+            # Eliminar la extensión del archivo ".webp"
+            nombre_sin_extension = nombre_archivo.split(".")[0]
+
+            if heroes['name'].count("-") > 0  and heroes['name'] == nombre_sin_extension:
+                heroes['icon'] = url
+
+            else:
+                nombre_sin_guiones = nombre_sin_extension.replace("-", " ")
+                if heroes['name'] == nombre_sin_guiones:
+                    heroes['icon'] = url
+
+
+                
+def agregar_models(models):
+    for heroes in characters:
+        for url in models:
+            
+            # dejar solo el nombre
+            nombre_archivo = url.split("/")[-1]
+            # Eliminar la extensión del archivo ".webp"
+            nombre_sin_extension = nombre_archivo.split(".")[0]
+
+            if heroes['name'].count("-") > 0  and heroes['name'] == nombre_sin_extension:
+                heroes['model'] = url
+
+            else:
+                nombre_sin_guiones = nombre_sin_extension.replace("-", " ")
+                if heroes['name'] == nombre_sin_guiones:
+                    heroes['model'] = url
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 # Función para leer y convertir una imagen a base85
-def image_to_base85(file_path):
-    with open(file_path, 'rb') as f:
-        image_data = f.read()
-        base85_data = base64.b85encode(image_data).decode('utf-8')
-    return base85_data
+# def image_to_base85(file_path):
+#     with open(file_path, 'rb') as f:
+#         image_data = f.read()
+#         base85_data = base64.b85encode(image_data).decode('utf-8')
+#     return base85_data
 
-# Función para obtener y convertir todas las imágenes en base85 y almacenarlas en un array de objetos
-def convert_images_to_base85(directory_path, property):
-    for filename in os.listdir(directory_path):
-        if filename.endswith(('.webp')):  # Filtrar solo archivos de imagen
-            for  objeto in characters:
-                if (objeto['name'] == os.path.splitext(filename)[0]):
-                    file_path = os.path.join(directory_path, filename)
-                    base85_data = image_to_base85(file_path)
-                    objeto[property] = base85_data
+# # Función para obtener y convertir todas las imágenes en base85 y almacenarlas en un array de objetos
+# def convert_images_to_base85(directory_path, property):
+#     for filename in os.listdir(directory_path):
+#         if filename.endswith(('.webp')):  # Filtrar solo archivos de imagen
+#             for  objeto in characters:
+#                 if (objeto['name'] == os.path.splitext(filename)[0]):
+#                     file_path = os.path.join(directory_path, filename)
+#                     base85_data = image_to_base85(file_path)
+#                     objeto[property] = base85_data
 
         
                     

@@ -42,6 +42,7 @@ async def root():
     # await characters()
     # await test_image()
     await select_character()
+    
     return 'heroes'
 
 @app.get("/hola")
@@ -100,10 +101,8 @@ async def insert_test(artefacts):
 async def select_character():
     
     conn = await dbConnect()
-    result = await conn.execute("select * from gamemode")
+    result = await conn.execute("select * from heroes")
     custom_print(result.rows)
-    
-
 
 async def characters():
     result = await character_list()
@@ -118,7 +117,7 @@ async def insert_heroes(heroes):
         print(name)
         classe = heroe['class']
         rarity = heroe['rarity']
-        await conn.execute("INSERT INTO heroes (name, class, rarity, rarity, horoscope, element, icon, model, attack, health, defense, speed, critical_hit_chance, critical_hit_damage, effectiveness, effect_resistance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (heroe['name'], heroe['class'], heroe['rarity'], heroe['horoscope'], heroe['element'], heroe['icon'], heroe['model'], heroe['attack'], heroe['rarity'], heroe['rarity'], heroe['defense'],heroe['speed'], heroe['critical_hit_chance'], heroe['critical_hit_damage'], heroe['effectiveness'], heroe['effect_resistance']))
+        await conn.execute("INSERT INTO heroes (name, class, rarity, horoscope, element, icon, model, attack, health, defense, speed, critical_hit_chance, critical_hit_damage, effectiveness, effect_resistance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (heroe['name'], heroe['class'], heroe['rarity'], heroe['horoscope'], heroe['element'], heroe['icon'], heroe['model'], heroe['attack'], heroe['health'], heroe['defense'],heroe['speed'], heroe['critical_hit_chance'], heroe['critical_hit_damage'], heroe['effectiveness'], heroe['effect_resistance']))
         await conn.close()
 
 
