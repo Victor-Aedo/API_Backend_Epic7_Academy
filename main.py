@@ -151,7 +151,7 @@ async def deleteData():
 
 async def main():
     artefacts = await get_artifacts()
-    await select_test(table)
+    # await select_test(table)
 
 # async def select_test():
 #     conn = await dbConnect()
