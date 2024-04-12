@@ -1,5 +1,6 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import base64
 from app.components.custom_print import custom_print
@@ -28,6 +29,15 @@ from app.components.test_blob import character_list_image
 #Iniciar el Server "uvicorn main:app --reload"
 load_dotenv()
 app = FastAPI()
+
+# Configurar CORS
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:3000"],
+    allow_credentials=True,
+    allow_methods=["GET", "POST"],
+    allow_headers=["*"],
+)
 
 heroe=None
 heroes = []
@@ -61,14 +71,14 @@ async def root():
     return artefacts
 
 # Trae todos los heroes
-@app.get("/heroe")
+@app.get("/Heros")
 async def root():
     global heroes
     await select_heroes()
     return heroes
 
 # Un solo heroe
-@app.get("/heroe/{name}")
+@app.get("/Heros/{name}")
 async def root(name: str):
     global heroe
     await select_heroe(name)
