@@ -14,6 +14,7 @@ from html.parser import HTMLParser
 from typing import List
 from PIL import Image
 import httpx
+from app.components.links_artifacts import artifact_links
 
 async def fetch_artifacts(url):
     async with httpx.AsyncClient() as client:
@@ -24,6 +25,7 @@ async def fetch_artifacts(url):
             raise Exception(f'Error en la solicitud: {response.status_code}')
 
 async def get_artifacts():
+
     url = 'https://epic7x.com/artifacts/'
     html = await fetch_artifacts(url)
     
@@ -46,15 +48,15 @@ async def get_artifacts():
     ]
 
     artefactos_faltantes = [
-        {'name': 'lela Violin', 'class': 'Mage', 'rarity': '4', 'image': '1'},
-        {'name': 'VII. The Chariot', 'class': 'Any Class', 'rarity': '4', 'image': '1'},
-        {'name': 'VI. The Lovers', 'class': 'Any Class', 'rarity': '4', 'image': '1'},
-        {'name': 'VI. The Star', 'class': 'Any Class', 'rarity': '4', 'image': '1'},
-        {'name': 'Record of Unity', 'class': 'Any Class', 'rarity': '4', 'image': '1'},
-        {'name': "New Year's of Festival Souvenir", 'class': 'Any Class', 'rarity': '4', 'image': '1'},
+        {'name': 'lela Violin', 'class': 'Mage', 'rarity': '4', 'image': ''},
+        {'name': 'VII The Chariot', 'class': 'Any Class', 'rarity': '4', 'image': ''},
+        {'name': 'VI The Lovers', 'class': 'Any Class', 'rarity': '4', 'image': ''},
+        {'name': 'VI The Star', 'class': 'Any Class', 'rarity': '4', 'image': ''},
+        {'name': 'Record of Unity', 'class': 'Any Class', 'rarity': '4', 'image': ''},
+        {'name': "New Year's of Festival Souvenir", 'class': 'Any Class', 'rarity': '4', 'image': ''},
         {'name': 'Cutie Pando', 'class': 'Any Class', 'rarity': '4', 'image': ''},
-        {'name': 'Our Beautiful Seasons', 'class': 'Any Class', 'rarity': '4', 'image': '1'},
-        {'name': 'One Year of Gratitude', 'class': 'Any Class', 'rarity': '4', 'image': '1'}
+        {'name': 'Our Beautiful Seasons', 'class': 'Any Class', 'rarity': '4', 'image': ''},
+        {'name': 'One Year of Gratitude', 'class': 'Any Class', 'rarity': '4', 'image': ''}
     ]
     artefacts_formatted.extend(artefactos_faltantes)
 
@@ -80,9 +82,43 @@ async def get_artifacts():
     for artefact in artefacts_formatted:
         if '&' in artefact['name']:
             artefact['name'] = decode_html_entities(artefact['name'])
-        custom_print(artefact['name'])  
-    
+        # custom_print(artefact['name'])  
+        
 
+
+    def add_image_links(artefacts_links):
+
+        for artefact in artefacts_formatted:
+            for url in artifact_links:
+                
+                # dejar solo el nombre
+                nombre_archivo = url.split("/")[-1]
+                
+                # Eliminar la extensión del archivo ".webp"
+                nombre_sin_extension = nombre_archivo.split(".")[0]
+
+                
+
+                if artefact['name'].count("-") > 0  and artefact['name'] == nombre_sin_extension:
+                    artefact['image'] = url
+                    
+
+                else:
+                    nombre_sin_guiones = nombre_sin_extension.replace("-", " ")
+                    
+                    if artefact['name'] == nombre_sin_guiones:
+                        artefact['image'] = url
+                        
+
+                    
+        
+
+
+    add_image_links(artifact_links)
+
+
+
+    return artefacts_formatted
 
     # # Ruta al directorio que contiene las imágenes
     # directory_path = './static/images/Artifacts'

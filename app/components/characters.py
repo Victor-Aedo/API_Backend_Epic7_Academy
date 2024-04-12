@@ -79,7 +79,8 @@ async def character_list():
             'skills': []  # Inicializar la lista de habilidades para cada personaje
             
         }
-        
+
+
         for habilidad in objecto['skills']:
             skill_data = {
                 'name': habilidad['skill_name'],

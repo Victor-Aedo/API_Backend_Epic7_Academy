@@ -29,19 +29,20 @@ from app.components.test_blob import character_list_image
 load_dotenv()
 app = FastAPI()
 
-artefacts = []
-heroes = None
+heroe=None
+heroes = []
 
 @app.get("/")
 async def root():
-    global heroes
+    # global heroes
+    # await insert_artifacts()
     # await deleteData()
     # await insert_test(artefacts)
     # await select_character()
     # leer_csv()
-    # await characters()
+    await characters()
     # await test_image()
-    await select_character()
+    # await select_character()
     
     return 'heroes'
 
@@ -52,6 +53,95 @@ async def root():
     return heroes
  
 
+artefacts = []
+@app.get("/artifacts")
+async def root():
+    global artefacts
+    await select_artifacts()
+    return artefacts
+
+# Trae todos los heroes
+@app.get("/heroe")
+async def root():
+    global heroes
+    await select_heroes()
+    return heroes
+
+# Un solo heroe
+@app.get("/heroe/{name}")
+async def root(name: str):
+    global heroe
+    await select_heroe(name)
+    return heroe
+
+
+
+
+async def select_artifacts():
+    global artefacts
+
+    conn = await dbConnect()
+    result = await conn.execute(f"SELECT * from artifact")
+
+    # Obtener todas las filas como una lista de diccionarios
+    rows = result.rows
+    serialized_rows = [dict(row.asdict()) for row in rows]
+
+    # Agregar las filas serializadas a la lista artefacts
+    artefacts.extend(serialized_rows)
+
+
+
+async def select_heroes():
+    global heroes
+
+    conn = await dbConnect()
+    result = await conn.execute(f"SELECT name, class, rarity, horoscope, element, icon from heroes")
+
+    # Obtener todas las filas como una lista de diccionarios
+    rows = result.rows
+    serialized_rows = [dict(row.asdict()) for row in rows]
+
+    # Agregar las filas serializadas a la lista artefacts
+    heroes.extend(serialized_rows)
+
+
+async def select_heroe(name):
+    global heroe
+
+    conn = await dbConnect()
+    result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
+    rows = result.rows
+    serialized_rows = [dict(row.asdict()) for row in rows]
+
+    heroe = serialized_rows
+
+
+
+async def insert_artifacts():
+    artefacts = await get_artifacts()
+    await insert_test(artefacts)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 async def deleteData():
@@ -61,12 +151,12 @@ async def deleteData():
 
 async def main():
     artefacts = await get_artifacts()
-    await select_test()
+    await select_test(table)
 
-async def select_test():
-    conn = await dbConnect()
-    result = await conn.execute("SELECT * from artifact")
-    custom_print(result.rows)
+# async def select_test():
+#     conn = await dbConnect()
+#     result = await conn.execute("SELECT * from artifact")
+#     custom_print(result.rows)
 
 
 
@@ -89,12 +179,8 @@ async def insert_test(artefacts):
     # result = await conn.execute("INSERT INTO artifact (name, artifact_class, rarity, image, hp, atk) VALUES ('Hola2', 'any', 4, 'hola', 0, 0)")
     for artefact in artefacts:
         conn = await dbConnect()
-        name = artefact['name']
-        print(name)
-        artifact_class = artefact['class']
-        rarity = artefact['rarity']
-        image = artefact['image']
-        await conn.execute("INSERT INTO artifact (name, artifact_class, rarity, image, hp, atk) VALUES (?, ?, ?, ?, 0, 0)", (name, artifact_class, rarity, image))
+        print(artefact['name'])
+        await conn.execute("INSERT INTO artifact (name, description, artifact_class, rarity, image, attack, health) VALUES (?, ? ,?, ?, ?, ?, ?)", (artefact['name'], 'description' , artefact['class'], artefact['rarity'], artefact['image'], 0, 0))
         await conn.close()    
     
 
@@ -111,15 +197,30 @@ async def characters():
 
 async def insert_heroes(heroes):
     # result = await conn.execute("INSERT INTO artifact (name, artifact_class, rarity, image, hp, atk) VALUES ('Hola2', 'any', 4, 'hola', 0, 0)")
+    
     for heroe in heroes:
-        conn = await dbConnect()
-        name = heroe['name']
-        print(name)
-        classe = heroe['class']
-        rarity = heroe['rarity']
-        await conn.execute("INSERT INTO heroes (name, class, rarity, horoscope, element, icon, model, attack, health, defense, speed, critical_hit_chance, critical_hit_damage, effectiveness, effect_resistance) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (heroe['name'], heroe['class'], heroe['rarity'], heroe['horoscope'], heroe['element'], heroe['icon'], heroe['model'], heroe['attack'], heroe['health'], heroe['defense'],heroe['speed'], heroe['critical_hit_chance'], heroe['critical_hit_damage'], heroe['effectiveness'], heroe['effect_resistance']))
-        await conn.close()
+        for skill in heroe['skills']:
+            # conn = await dbConnect()
+            
+            heroe_name = heroe['name']
+            name = skill['name']
+            skill_type = skill['skill_type']
+            special_acquired = skill['special_acquired']
+            special_used_acquired = skill['special_used_acquired']
+            skill_burn_effect = skill['skill_burn_effect']
+            souls_obtained = skill['souls_obtained']
+            description = skill['description']
+            skill_enhancement = skill['skill_enhancement']
+            image = skill['image']
+            cooldown = skill['cooldown']
+                
+            print('heroes: ', heroe_name, 'skill: ', name, 'skill_type: ', skill_type, 'description: ', description)
 
+            # await conn.execute("INSERT INTO skills (heroe_name, name, type, special_acquired, special_used_acquired, burn_effect, souls_obtained, description, enhancement, image, cooldown) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)", (heroe_name, name, skill_type, special_acquired, special_used_acquired, skill_burn_effect, souls_obtained, description, skill_enhancement, image, cooldown))
+            # await conn.close()
+
+                                                                                                                                                                                                                                             
+                                                                                                
 
 async def test_image():
     result = await character_list_image()
