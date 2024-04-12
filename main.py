@@ -12,7 +12,7 @@ import asyncio
 import html
 from html.parser import HTMLParser
 from typing import List
-from PIL import Image
+
 import httpx
 from dotenv import load_dotenv
 from app.components.artifacts import get_artifacts

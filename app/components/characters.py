@@ -12,7 +12,7 @@ import asyncio
 import html
 from html.parser import HTMLParser
 from typing import List
-from PIL import Image
+
 import httpx
 from app.components.characters_csv import leer_csv
 from app.components.decodificador_html import decode_html_entities
