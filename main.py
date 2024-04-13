@@ -89,7 +89,7 @@ async def root(name: str):
 
 async def select_artifacts():
     global artefacts
-
+    artefacts.clear()
     conn = await dbConnect()
     result = await conn.execute(f"SELECT * from artifact")
 
@@ -104,9 +104,9 @@ async def select_artifacts():
 
 async def select_heroes():
     global heroes
-
+    heroes.clear()
     conn = await dbConnect()
-    result = await conn.execute(f"SELECT name, class, rarity, horoscope, element, icon from heroes")
+    result = await conn.execute(f"SELECT id_heroe, name, class, rarity, horoscope, element, icon from heroes")
 
     # Obtener todas las filas como una lista de diccionarios
     rows = result.rows
@@ -118,7 +118,7 @@ async def select_heroes():
 
 async def select_heroe(name):
     global heroe
-
+    heroe.clear()
     conn = await dbConnect()
     result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
     rows = result.rows
