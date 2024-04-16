@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import base64
 from app.components.custom_print import custom_print
@@ -13,13 +14,13 @@ import asyncio
 import html
 from html.parser import HTMLParser
 from typing import List
-
 import httpx
 from dotenv import load_dotenv
 from app.components.artifacts import get_artifacts
 from app.components.characters_csv import leer_csv
 from app.components.characters import character_list
 from app.components.test_blob import character_list_image
+import time
 
 
 
@@ -33,11 +34,13 @@ app = FastAPI()
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # Aquí debes especificar los orígenes permitidos
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+
 
 heroe=None
 heroes = []
@@ -51,6 +54,7 @@ async def root():
     # await select_character()
     # leer_csv()
     await characters()
+    time.sleep(2) 
     # await test_image()
     # await select_character()
     
@@ -104,27 +108,36 @@ async def select_artifacts():
 
 async def select_heroes():
     global heroes
-    heroes.clear()
-    conn = await dbConnect()
-    result = await conn.execute(f"SELECT id_heroe, name, class, rarity, horoscope, element, icon from heroes")
 
-    # Obtener todas las filas como una lista de diccionarios
-    rows = result.rows
-    serialized_rows = [dict(row.asdict()) for row in rows]
+    try:
+        conn = await dbConnect()
+        result = await conn.execute(f"SELECT name, class, rarity, horoscope, element, icon from heroes")
 
-    # Agregar las filas serializadas a la lista artefacts
-    heroes.extend(serialized_rows)
+        # Obtener todas las filas como una lista de diccionarios
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        # Agregar las filas serializadas a la lista artefacts
+        heroes.extend(serialized_rows)
+
+    except:
+        print('')
 
 
 async def select_heroe(name):
     global heroe
     heroe.clear()
     conn = await dbConnect()
-    result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
-    rows = result.rows
-    serialized_rows = [dict(row.asdict()) for row in rows]
 
-    heroe = serialized_rows
+    try:
+        result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        heroe = serialized_rows
+
+    except:
+        print('Ocurrió un error al buscar el heroe')
 
 
 
