@@ -1,6 +1,7 @@
 from fastapi import FastAPI, Request, HTTPException, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.middleware.cors import CORSMiddleware
+from fastapi.middleware.cors import CORSMiddleware
 import os
 import base64
 from app.components.custom_print import custom_print
@@ -13,13 +14,13 @@ import asyncio
 import html
 from html.parser import HTMLParser
 from typing import List
-
 import httpx
 from dotenv import load_dotenv
 from app.components.artifacts import get_artifacts
 from app.components.characters_csv import leer_csv
 from app.components.characters import character_list
 from app.components.test_blob import character_list_image
+import time
 
 
 
@@ -33,11 +34,13 @@ app = FastAPI()
 # Configurar CORS
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],
+    allow_origins=["http://localhost:3000"],  # Aquí debes especificar los orígenes permitidos
     allow_credentials=True,
-    allow_methods=["GET", "POST"],
+    allow_methods=["GET", "POST", "PUT", "DELETE"],
     allow_headers=["*"],
 )
+
+
 
 heroe=None
 heroes = []
@@ -51,38 +54,43 @@ async def root():
     # await select_character()
     # leer_csv()
     await characters()
+    time.sleep(2) 
     # await test_image()
     # await select_character()
     
     return 'heroes'
-
-@app.get("/hola")
-async def root():
-    global heroes
-    
-    return heroes
  
 
 artefacts = []
 @app.get("/Artifacts")
 async def root():
-    global artefacts
-    await select_artifacts()
-    return artefacts
+    # global artefacts
+    artifacts = await select_artifacts()
+    return artifacts
+
+
+@app.get("/Artifacts/{name}")
+async def root(name: str):
+    artifact = await get_artifact(name)
+    return artifact
+
+
 
 # Trae todos los heroes
 @app.get("/Heros")
 async def root():
-    global heroes
-    await select_heroes()
-    return heroes
+    # global heroes
+    heros = await select_heroes()
+    return heros
 
 # Un solo heroe
 @app.get("/Heros/{name}")
 async def root(name: str):
-    global heroe
-    await select_heroe(name)
-    return heroe
+    # global heroe
+    hero = await select_heroe(name)
+    return hero
+
+
 
 
 
@@ -100,20 +108,28 @@ async def select_artifacts():
     # Agregar las filas serializadas a la lista artefacts
     artefacts.extend(serialized_rows)
 
+    return serialized_rows
+
 
 
 async def select_heroes():
     global heroes
-    heroes.clear()
-    conn = await dbConnect()
-    result = await conn.execute(f"SELECT id_heroe, name, class, rarity, horoscope, element, icon from heroes")
 
-    # Obtener todas las filas como una lista de diccionarios
-    rows = result.rows
-    serialized_rows = [dict(row.asdict()) for row in rows]
+    try:
+        conn = await dbConnect()
+        result = await conn.execute(f"SELECT name, class, rarity, horoscope, element, icon from heroes")
 
-    # Agregar las filas serializadas a la lista artefacts
-    heroes.extend(serialized_rows)
+        # Obtener todas las filas como una lista de diccionarios
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        # Agregar las filas serializadas a la lista artefacts
+        heroes.extend(serialized_rows)
+        return serialized_rows
+
+    except:
+        print('error al obtener heroes')
+
 
 
 async def select_heroe(name):
@@ -123,11 +139,39 @@ async def select_heroe(name):
     else:
         heroe.clear()
     conn = await dbConnect()
-    result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
-    rows = result.rows
-    serialized_rows = [dict(row.asdict()) for row in rows]
 
-    heroe = serialized_rows
+    try:
+        result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        heroe = serialized_rows
+
+        return serialized_rows
+
+    except:
+        print('Ocurrió un error al buscar el heroe')
+
+
+
+
+
+async def get_artifact(name):
+
+    conn = await dbConnect()
+
+    try:
+        result = await conn.execute(f"SELECT * FROM artifact WHERE name = '{name}'")
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        return serialized_rows
+        
+
+    except:
+        print('Ocurrió un error al buscar el artefacto')
+
+
 
 
 
