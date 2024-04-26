@@ -64,7 +64,7 @@ async def root():
  
 
 artefacts = []
-@app.get("/artifacts")
+@app.get("/Artifacts")
 async def root():
     global artefacts
     await select_artifacts()
@@ -118,7 +118,10 @@ async def select_heroes():
 
 async def select_heroe(name):
     global heroe
-    heroe.clear()
+    if heroe is None:
+        heroe = []
+    else:
+        heroe.clear()
     conn = await dbConnect()
     result = await conn.execute(f"SELECT * FROM heroes WHERE name = '{name}'")
     rows = result.rows
