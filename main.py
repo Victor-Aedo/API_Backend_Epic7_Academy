@@ -59,34 +59,38 @@ async def root():
     # await select_character()
     
     return 'heroes'
-
-@app.get("/hola")
-async def root():
-    global heroes
-    
-    return heroes
  
 
 artefacts = []
-@app.get("/artifacts")
+@app.get("/Artifacts")
 async def root():
-    global artefacts
-    await select_artifacts()
-    return artefacts
+    # global artefacts
+    artifacts = await select_artifacts()
+    return artifacts
+
+
+@app.get("/Artifacts/{name}")
+async def root(name: str):
+    artifact = await get_artifact(name)
+    return artifact
+
+
 
 # Trae todos los heroes
 @app.get("/Heros")
 async def root():
-    global heroes
-    await select_heroes()
-    return heroes
+    # global heroes
+    heros = await select_heroes()
+    return heros
 
 # Un solo heroe
 @app.get("/Heros/{name}")
 async def root(name: str):
-    global heroe
-    await select_heroe(name)
-    return heroe
+    # global heroe
+    hero = await select_heroe(name)
+    return hero
+
+
 
 
 
@@ -104,6 +108,8 @@ async def select_artifacts():
     # Agregar las filas serializadas a la lista artefacts
     artefacts.extend(serialized_rows)
 
+    return serialized_rows
+
 
 
 async def select_heroes():
@@ -119,14 +125,16 @@ async def select_heroes():
 
         # Agregar las filas serializadas a la lista artefacts
         heroes.extend(serialized_rows)
+        return serialized_rows
 
     except:
-        print('')
+        print('error al obtener heroes')
+
 
 
 async def select_heroe(name):
     global heroe
-    heroe.clear()
+    heroe
     conn = await dbConnect()
 
     try:
@@ -136,8 +144,31 @@ async def select_heroe(name):
 
         heroe = serialized_rows
 
+        return serialized_rows
+
     except:
         print('Ocurrió un error al buscar el heroe')
+
+
+
+
+
+async def get_artifact(name):
+
+    conn = await dbConnect()
+
+    try:
+        result = await conn.execute(f"SELECT * FROM artifact WHERE name = '{name}'")
+        rows = result.rows
+        serialized_rows = [dict(row.asdict()) for row in rows]
+
+        return serialized_rows
+        
+
+    except:
+        print('Ocurrió un error al buscar el artefacto')
+
+
 
 
 
